@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 class DailyDistance extends Component{
     state = {
@@ -26,7 +27,7 @@ class DailyDistance extends Component{
 
         try{
             const response = await axios.get(
-              "https://anyURL.com"
+              "https://url.com"
             );
             // if any additional data is added then it can 
             // be added here and updated in state as well easily
@@ -36,8 +37,14 @@ class DailyDistance extends Component{
             data["date"]=date;
             data["distance"]=distance;
             data["time"]=time;
-
+            
             this.setState({data});
+            
+            // Updating speed of person in database     
+            const person_speed = distance/time;       
+            const updateDB = await axios.put(
+                "https://url.com", {speed: person_speed}
+            ); 
         }
         catch(error){
             console.log(error);
