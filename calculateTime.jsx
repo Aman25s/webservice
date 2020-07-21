@@ -6,7 +6,10 @@ export default class CalculateTimeStamp extends Component {
       u_id: "",
       start_time: "",
       end_time: "",
-      time_diff: ""
+      distance: "",
+      // Hardcoding speed here but in main service 
+      // will take distance from backend(see line no: 54)
+      speed: "40" 
     },
   };
 
@@ -19,35 +22,49 @@ export default class CalculateTimeStamp extends Component {
     e.preventDefault();
     const data = {...this.state.data};
     data[e.target.name] = e.target.value;
-    console.log(data[e.target.name]);
     this.setState({data});
   }
 
   calculateDiff = () =>{
-        const {start_time, end_time} =this.state.data;
+    const {start_time, end_time} =this.state.data;
 
-        var start = start_time.split(':');
-        var end = end_time.split(":");
+    var start = start_time.split(':');
+    var end = end_time.split(":");
 
-        var startTime = new Date(0, 0, 0, start[0], start[1], 0);
-        var endTime = new Date(0, 0, 0, end[0], end[1], 0);
+    var startTime = new Date(0, 0, 0, start[0], start[1], 0);
+    var endTime = new Date(0, 0, 0, end[0], end[1], 0);
 
-        var diff = endTime.getTime() - startTime.getTime();
+    var diff = endTime.getTime() - startTime.getTime();
+    
+    var hours = Math.floor(diff / 1000 / 60 / 60);
+    diff -= hours * 1000 * 60 * 60;
+    
+    var minutes = Math.floor(diff / 1000 / 60);
+    
+    if (hours < 0)
+        hours = hours + 24;
 
-        var hours = Math.floor(diff / 1000 / 60 / 60);
-        diff -= hours * 1000 * 60 * 60;
-
-        var minutes = Math.floor(diff / 1000 / 60);
-
-        if (hours < 0)
-            hours = hours + 24;
-
-        const data = {...this.state.data};
-        data["time_diff"] = (hours <= 9 ? "0" : "") + hours + "hours : " + (minutes <= 9 ? "0" : "") + minutes + " minutes";
-            
-        this.setState({data})
-
+    const data = {...this.state.data};
+    data["distance"] = data["speed"] * (hours + minutes/60);
+    this.setState({data});
   }
+
+  /*
+  componentDidMount = async() => {
+    try{
+      const response = await axios.get(
+        "http://url.com/getSpeed"
+      );
+
+      const data = {...this.state.data};
+      data["speed"] = response.data.speed;
+      this.setState({data});
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+  */
 
   render() {
     return (
@@ -75,8 +92,8 @@ export default class CalculateTimeStamp extends Component {
             onChange={this.handleChange}
         /><br /><br />
         <button id="btn1" onClick={this.handleSubmit}>Submit</button><br />
-        Total Time Spent:<br />
-        <input id="diff" name="diff" value={this.state.data.time_diff}></input>
+        Total Distance Travelled:<br />
+        <input id="distance" name="distance" value={this.state.data.distance}></input>
         </form>
         <br />
           
